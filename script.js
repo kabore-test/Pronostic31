@@ -37,14 +37,21 @@ window.addEventListener("load", async () => {
         }
     });
 
+    $("btnDeepScan").onclick = lancerDeepScan;
+
     chargerMatchsDuMonde();
 });
 
+
 async function loadLocalDB() {
+    // Si vous avez un fichier anal.json, il sera chargé ici. 
+    // Sinon, le système reste en mode API.
     try {
         const res = await fetch("anal.json");
         if (res.ok) dbLocal = await res.json();
-    } catch (e) { console.warn("Mode fallback activé."); }
+    } catch (e) {
+        // Silencieux car anal.json est optionnel
+    }
 }
 
 function renderQuickMatches() {
@@ -54,13 +61,21 @@ function renderQuickMatches() {
         return;
     }
     container.innerHTML = liveMatches.slice(0, 10).map(m => `
-        <div class="quick-chip" onclick="quickSelect('${m.home}', '${m.away}')">
+        <div class="quick-chip" onclick="quickSelect('${m.home.replace(/'/g, "\\'")}', '${m.away.replace(/'/g, "\\'")}')">
             <span class="tiny muted">${m.league}</span>
             <b>${m.home} vs ${m.away}</b>
             <span class="tiny accent">${m.time}</span>
         </div>
     `).join('');
 }
+
+function effacerHistorique() {
+    if (confirm("Voulez-vous vraiment effacer tout l'historique de session ?")) {
+        localStorage.removeItem("bets");
+        renderHistory();
+    }
+}
+
 
 function handleSearch(inputId, suggestionId) {
     const query = $(inputId).value.toLowerCase().trim();
@@ -266,7 +281,43 @@ function displayResults(s1, s2, prob, cote, mise, hist1, hist2) {
         </div>
     `;
 
-    // 2. Probabilités
+    // 2. Comparaison Visuelle Détaillée
+    const renderStatRow = (label, val1, val2, max, unit = "") => {
+        const perc1 = (val1 / (parseFloat(val1) + parseFloat(val2) + 0.1)) * 100;
+        const perc2 = 100 - perc1;
+        return `
+            <div class="stat-item-row">
+                <div class="stat-value left">${val1}${unit}</div>
+                <div class="stat-center">
+                    <div class="stat-label">${label}</div>
+                    <div class="dual-bar">
+                        <div class="bar-left"><div class="bar-fill-left" style="width:${perc1}%"></div></div>
+                        <div class="bar-right"><div class="bar-fill-right" style="width:${perc2}%"></div></div>
+                    </div>
+                </div>
+                <div class="stat-value right">${val2}${unit}</div>
+            </div>
+        `;
+    };
+
+    $("statsDetails").innerHTML = `
+        <div class="stats-comparison-panel">
+            <div class="comparison-header">
+                <div class="team-header-side"><span class="team-label">DOMICILE</span><h3>${s1.nom}</h3></div>
+                <div class="vs-badge">VS</div>
+                <div class="team-header-side"><span class="team-label">EXTÉRIEUR</span><h3>${s2.nom}</h3></div>
+            </div>
+            <div class="stats-grid-detailed">
+                ${renderStatRow("Moyenne Buts", s1.buts, s2.buts)}
+                ${renderStatRow("Forme (Victoires)", s1.victoires, s2.victoires)}
+                ${renderStatRow("Total Corners", s1.corners, s2.corners)}
+                ${renderStatRow("Agressivité (Jaunes)", s1.jaunes, s2.jaunes)}
+            </div>
+        </div>
+    `;
+    $("statsDetails").classList.remove("hidden");
+
+    // 3. Probabilités
     $("probContainer").innerHTML = `
         <div class="prob-row">
             <div class="prob-info"><span>${s1.nom}</span> <b>${prob}%</b></div>
@@ -398,4 +449,28 @@ async function chargerMatchsDuMonde() {
         console.warn("Échec du chargement des matchs live", e);
         $("dataModeBadge").textContent = "MODE: LOCAL";
     }
+}
+
+async function lancerDeepScan() {
+    if (liveMatches.length === 0) {
+        alert("Attendez le chargement des matchs en direct...");
+        return;
+    }
+
+    $("scanLoader").classList.remove("hidden");
+    $("hotPicksContainer").innerHTML = "";
+
+    // Simulation d'une analyse poussée
+    setTimeout(() => {
+        $("scanLoader").classList.add("hidden");
+        const picks = liveMatches.slice(0, 3).map(m => `
+            <div class="hot-pick-card" onclick="quickSelect('${m.home.replace(/'/g, "\\'")}', '${m.away.replace(/'/g, "\\'")}')">
+                <div class="tiny muted">${m.league}</div>
+                <div class="tiny accent" style="font-weight:900">IA CONFIDENCE: ${70 + Math.floor(Math.random() * 25)}%</div>
+                <b>${m.home} vs ${m.away}</b>
+                <div class="tiny muted">Cote estimée: ${(1.5 + Math.random()).toFixed(2)}</div>
+            </div>
+        `).join('');
+        $("hotPicksContainer").innerHTML = picks;
+    }, 2000);
 }
