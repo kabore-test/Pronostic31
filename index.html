@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Predictor Pro | Intelligence Artificielle Football</title>
+    <link rel="stylesheet" href="data.css">
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700;900&display=swap" rel="stylesheet">
+</head>
+
+<body>
+    <div class="container">
+        <header class="header">
+            <div class="brand">
+                <h1>PREDICTOR <span style="color:var(--accent)">PRO</span></h1>
+                <div class="subhead">
+                    <span id="dataModeBadge" class="badge">CONNEXION...</span>
+                    <span id="lastUpdate" class="muted tiny">Neural Engine v4.0</span>
+                </div>
+            </div>
+            <div class="bankroll-display">
+                <label class="tiny muted uppercase" for="inputBankroll">Votre Bankroll (CFA)</label><br>
+                <input type="number" id="inputBankroll" value="10000" min="0">
+            </div>
+        </header>
+
+        <section class="panel ai-oracle">
+            <div class="ai-header" style="display:flex; align-items:center; gap:15px; margin-bottom:20px;">
+                <div class="ai-orb"></div>
+                <div>
+                    <h2 class="tiny muted uppercase" style="margin:0; letter-spacing:2px;">Configuration Oracle IA</h2>
+                    <p class="tiny muted" style="margin:0;">Composez votre duel ou choisissez un match en direct</p>
+                </div>
+            </div>
+
+            <div class="dual-select-grid">
+                <!-- CÔTÉ DOMICILE -->
+                <div class="select-side">
+                    <label class="tiny muted uppercase">🏠 Équipe Domicile</label>
+                    <div class="input-with-suggestions">
+                        <input type="text" id="homeSearch" placeholder="Ex: PSG..." autocomplete="off">
+                        <div id="homeSuggestions" class="suggestions-box hidden"></div>
+                    </div>
+                </div>
+
+                <div class="vs-divider">VS</div>
+
+                <!-- CÔTÉ EXTÉRIEUR -->
+                <div class="select-side">
+                    <label class="tiny muted uppercase">✈️ Équipe Extérieur</label>
+                    <div class="input-with-suggestions">
+                        <input type="text" id="awaySearch" placeholder="Ex: OM..." autocomplete="off">
+                        <div id="awaySuggestions" class="suggestions-box hidden"></div>
+                    </div>
+                </div>
+            </div>
+
+            <button id="btnAiSearch" class="btn-main-action">LANCER L'ANALYSE NEURONALE</button>
+
+            <div class="quick-matches">
+                <p class="tiny muted uppercase" style="margin: 15px 0 10px 0; font-size:0.6rem; letter-spacing:1px;">
+                    ⚡
+                    Sélection Rapide (Matchs du jour)
+                </p>
+                <div id="quickMatchList" class="quick-match-grid">
+                    <!-- Rempli dynamiquement -->
+                </div>
+            </div>
+        </section>
+
+        <div id="loading" class="loading hidden">
+            <div class="spinner"></div>
+            <p class="muted uppercase tiny" style="letter-spacing:2px">Consultation des serveurs de données...</p>
+        </div>
+
+        <div id="affichage" class="grid-stats"></div>
+
+        <div id="statsDetails" class="panel hidden"></div>
+
+        <section id="pronostics" class="prob-wrap hidden">
+            <h2 class="uppercase section-title">Répartition des Probabilités</h2>
+            <div id="probContainer"></div>
+        </section>
+
+        <div id="iaPredictionContainer" class="hidden">
+            <div id="iaPrediction" class="ia-prediction-card"></div>
+        </div>
+
+        <section class="panel scan-panel">
+            <h3 class="tiny muted uppercase" style="color:#2575fc">⚡ Opportunités IA (Deep Scan)</h3>
+            <div id="scanLoader" class="hidden">
+                <div class="spinner-small"></div>
+                <p class="tiny muted">Analyse des algorithmes en cours...</p>
+            </div>
+            <div id="hotPicksContainer" class="hot-picks-grid">
+                <p class="muted tiny">Utilisez le bouton de scan pour trouver les meilleures cotes du moment.</p>
+            </div>
+        </section>
+
+        <section class="panel history-section">
+            <h3 class="tiny muted uppercase">Historique des Pronostics</h3>
+            <div id="betHistory" class="history-list">
+                <p class="tiny muted">Aucune analyse récente.</p>
+            </div>
+            <button onclick="effacerHistorique()" class="btn-clear-full">Vider l'historique de session</button>
+        </section>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+
+</html>
